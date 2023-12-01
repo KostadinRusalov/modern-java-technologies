@@ -48,6 +48,14 @@ public class BaseTable implements Table {
 
     @Override
     public Collection<String> getColumnData(String column) {
+        if (column == null || column.isBlank()) {
+            throw new IllegalArgumentException("Column cannot be null or blank");
+        }
+
+        if (columnNames.get(column) == null) {
+            throw new IllegalArgumentException("There is no such column");
+        }
+
         return columnData.get(columnNames.get(column)).getData();
     }
 
