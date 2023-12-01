@@ -18,10 +18,12 @@ public class MarkdownTablePrinter implements TablePrinter {
     public Collection<String> printTable(Table table, ColumnAlignment... alignments) {
         List<String> tableRows = new ArrayList<>();
         int[] widths = getColumnWidths(table);
+
         tableRows.add(joinColumnNames(table, widths));
         tableRows.add(joinAlignments(widths, alignments));
         tableRows.addAll(joinRows(table, widths));
-        return null;
+
+        return tableRows;
     }
 
     private String joinColumnNames(Table table, int[] widths) {
