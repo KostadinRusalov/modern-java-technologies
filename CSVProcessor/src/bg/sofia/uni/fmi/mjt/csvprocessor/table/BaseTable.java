@@ -1,11 +1,12 @@
 package bg.sofia.uni.fmi.mjt.csvprocessor.table;
 
 import bg.sofia.uni.fmi.mjt.csvprocessor.exceptions.CsvDataNotCorrectException;
+import bg.sofia.uni.fmi.mjt.csvprocessor.table.column.BaseColumn;
 import bg.sofia.uni.fmi.mjt.csvprocessor.table.column.Column;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BaseTable implements Table {
@@ -16,7 +17,8 @@ public class BaseTable implements Table {
 
     public BaseTable() {
         columnData = new LinkedHashMap<>();
-        columnNames = new HashMap<>();
+        columnNames = new LinkedHashMap<>();
+        rollsCount = 0;
     }
 
     @Override
@@ -25,13 +27,22 @@ public class BaseTable implements Table {
             throw new IllegalArgumentException("Data cannot be null");
         }
 
+        if (data.length == 0) {
+            return;
+        }
+
         if (!columnData.isEmpty() && data.length != columnData.keySet().size()) {
             throw new CsvDataNotCorrectException("Data is not the correct format");
         }
 
         if (columnData.isEmpty()) {
             for (int i = 0; i < data.length; i++) {
+                if (columnNames.containsKey(data[i])) {
+                    throw new CsvDataNotCorrectException("Cannot have duplicate columns");
+                }
+
                 columnNames.put(data[i], i);
+                columnData.put(i, new BaseColumn());
             }
         } else {
             for (int i = 0; i < data.length; i++) {
@@ -43,7 +54,7 @@ public class BaseTable implements Table {
 
     @Override
     public Collection<String> getColumnNames() {
-        return columnNames.keySet();
+        return List.copyOf(columnNames.keySet());
     }
 
     @Override

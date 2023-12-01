@@ -2,9 +2,6 @@ package bg.sofia.uni.fmi.mjt.csvprocessor.table.printer;
 
 import bg.sofia.uni.fmi.mjt.csvprocessor.table.Table;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,23 +33,27 @@ public class MarkdownTablePrinter implements TablePrinter {
     }
 
     private String joinAlignments(int[] widths, ColumnAlignment... alignments) {
-        StringBuilder alignmentsBuilder = new StringBuilder("| ");
+        StringBuilder alignmentsBuilder = new StringBuilder("|");
         int minLength = Math.min(widths.length, alignments.length);
 
         for (int i = 0; i < minLength; ++i) {
+            String dashes = "-".repeat(widths[i] - alignments[i].getAlignmentCharactersCount());
+            alignmentsBuilder.append(' ');
             alignmentsBuilder.append(switch (alignments[i]) {
-                case LEFT -> ":" + "-".repeat(widths[i] - 1);
-                case CENTER -> ":" + "-".repeat(widths[i] - 2) + ":";
-                case RIGHT -> "-".repeat(widths[i] - 1) + ":";
-                case NOALIGNMENT -> "-".repeat(widths[i]);
+                case LEFT -> ":" + dashes;
+                case CENTER -> ":" + dashes + ":";
+                case RIGHT -> dashes + ":";
+                case NOALIGNMENT -> dashes;
             });
+
             alignmentsBuilder.append(" |");
         }
 
         if (alignments.length == minLength) {
             for (int i = minLength; i < widths.length; ++i) {
+                alignmentsBuilder.append(' ');
                 alignmentsBuilder.append("-".repeat(widths[i]));
-                alignmentsBuilder.append('|');
+                alignmentsBuilder.append(" |");
             }
         }
 
@@ -63,7 +64,7 @@ public class MarkdownTablePrinter implements TablePrinter {
         Map<Integer, List<String>> tableAsMap = getTableAsMap(table);
         List<String> rows = new ArrayList<>(table.getRowsCount());
 
-        for (int i = 0; i < table.getRowsCount(); ++i) {
+        for (int i = 0; i < table.getRowsCount() - 1; ++i) {
             StringBuilder rowBuilder = new StringBuilder("|");
             for (int j = 0; j < widths.length; ++j) {
                 appendData(rowBuilder, tableAsMap.get(j).get(i), widths[j]);

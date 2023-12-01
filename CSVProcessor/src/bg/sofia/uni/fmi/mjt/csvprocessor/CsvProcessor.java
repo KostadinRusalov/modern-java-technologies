@@ -30,8 +30,9 @@ public class CsvProcessor implements CsvProcessorAPI {
     public void readCsv(Reader reader, String delimiter) throws CsvDataNotCorrectException {
         try (var bufferedReader = new BufferedReader(reader)) {
             String line = bufferedReader.readLine();
+            String regex = escapeRegex(delimiter);
             while (line != null) {
-                table.addData(line.split(delimiter));
+                table.addData(line.split(regex));
                 line = bufferedReader.readLine();
             }
         } catch (IOException ex) {
@@ -42,12 +43,38 @@ public class CsvProcessor implements CsvProcessorAPI {
     @Override
     public void writeTable(Writer writer, ColumnAlignment... alignments) {
         try (var bufferedWriter = new BufferedWriter(writer)) {
-            var rows = tablePrinter.printTable(table, alignments);
-            for (String row : rows) {
-                bufferedWriter.write(row);
+            String[] rows = tablePrinter.printTable(table, alignments).toArray(String[]::new);
+            for (int i = 0; i < rows.length - 1; ++i) {
+                bufferedWriter.write(rows[i]);
+                bufferedWriter.write(System.lineSeparator());
             }
+            bufferedWriter.write(rows[rows.length - 1]);
         } catch (IOException ex) {
             throw new UncheckedIOException("Exception during reading", ex);
         }
+    }
+
+    public static String escapeRegex(String string) {
+        int start = string.indexOf("\\Q");
+        if (start == -1) {
+            return string;
+        }
+
+        int end = string.indexOf("\\E");
+        StringBuilder builder = new StringBuilder(string.substring(0, start));
+        final int offset = 2;
+
+        for (var ch : string.substring(start + offset, end).toCharArray()) {
+            if (ch == '\\' || ch == '^' || ch == '$' || ch == '.' || ch == '|' ||
+                ch == '?' || ch == '*' || ch == '+' || ch == '(' || ch == ')' ||
+                ch == '[' || ch == ']' || ch == '{' || ch == '}') {
+                builder.append("\\").append(ch);
+            } else {
+                builder.append(ch);
+            }
+        }
+
+        return builder.append(escapeRegex(string.substring(end + offset)))
+            .toString();
     }
 }
