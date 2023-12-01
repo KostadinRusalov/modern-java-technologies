@@ -44,7 +44,7 @@ public class CsvProcessor implements CsvProcessorAPI {
         try (var bufferedWriter = new BufferedWriter(writer)) {
             var rows = tablePrinter.printTable(table, alignments);
             for (String row : rows) {
-                writer.write(row);
+                bufferedWriter.write(row);
             }
         } catch (IOException ex) {
             throw new UncheckedIOException("Exception during reading", ex);
