@@ -31,7 +31,7 @@ public class CsvProcessor implements CsvProcessorAPI {
         try (var bufferedReader = new BufferedReader(reader)) {
             String line = bufferedReader.readLine();
             while (line != null) {
-                table.addData(line.split(delimiter));
+                table.addData(line.split("\\Q" + delimiter + "\\E"));
                 line = bufferedReader.readLine();
             }
         } catch (IOException ex) {
@@ -42,10 +42,12 @@ public class CsvProcessor implements CsvProcessorAPI {
     @Override
     public void writeTable(Writer writer, ColumnAlignment... alignments) {
         try (var bufferedWriter = new BufferedWriter(writer)) {
-            var rows = tablePrinter.printTable(table, alignments);
-            for (String row : rows) {
-                bufferedWriter.write(row);
+            String[] rows = tablePrinter.printTable(table, alignments).toArray(String[]::new);
+            for (int i = 0; i < rows.length - 1; ++i) {
+                bufferedWriter.write(rows[i]);
+                bufferedWriter.write(System.lineSeparator());
             }
+            bufferedWriter.write(rows[rows.length - 1]);
         } catch (IOException ex) {
             throw new UncheckedIOException("Exception during reading", ex);
         }

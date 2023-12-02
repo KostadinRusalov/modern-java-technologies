@@ -1,8 +1,8 @@
 package bg.sofia.uni.fmi.mjt.csvprocessor.table.column;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class BaseColumn implements Column {
@@ -27,6 +27,6 @@ public class BaseColumn implements Column {
 
     @Override
     public Collection<String> getData() {
-        return Collections.unmodifiableSet(values);
+        return List.copyOf(values);
     }
 }
