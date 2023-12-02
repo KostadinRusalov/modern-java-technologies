@@ -11,7 +11,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 
-import static bg.sofia.uni.fmi.mjt.csvprocessor.CsvProcessor.escapeRegex;
 import static bg.sofia.uni.fmi.mjt.csvprocessor.table.printer.ColumnAlignment.CENTER;
 import static bg.sofia.uni.fmi.mjt.csvprocessor.table.printer.ColumnAlignment.LEFT;
 import static bg.sofia.uni.fmi.mjt.csvprocessor.table.printer.ColumnAlignment.NOALIGNMENT;
@@ -24,15 +23,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CscProcessorTest {
-
-    @Test
-    public void testDelimiter() {
-        assertEquals(",", escapeRegex(","));
-        assertEquals("\\$", escapeRegex("\\Q$\\E"));
-        assertEquals(",,,\\|", escapeRegex(",,,\\Q|\\E"));
-        assertEquals(",\\^,\\.", escapeRegex(",\\Q^\\E,\\Q.\\E"));
-        assertEquals("\\^,\\^", escapeRegex("\\Q^,^\\E"));
-    }
 
     @Test
     public void testDuplicateColumns() {
@@ -52,7 +42,7 @@ public class CscProcessorTest {
 
         StringReader reader = new StringReader("too.much.data.in.here");
 
-        assertThrows(CsvDataNotCorrectException.class, () -> processor.readCsv(reader, "\\Q.\\E"));
+        assertThrows(CsvDataNotCorrectException.class, () -> processor.readCsv(reader, "."));
     }
 
     @Test
@@ -86,10 +76,20 @@ public class CscProcessorTest {
         CsvProcessorAPI processor = new CsvProcessor(table);
 
         StringReader stringReader = new StringReader("""
-            Koce$20$Male$in pain
-            MacbookAir$2$Apple$space gray""");
+            Koce^20^Male^in pain
+            MacbookAir^2^Apple^space gray""");
 
-        processor.readCsv(stringReader, "\\Q$\\E");
+        processor.readCsv(stringReader, "^");
+
+        StringWriter writer = new StringWriter();
+        processor.writeTable(writer, CENTER, CENTER, CENTER, CENTER);
+
+        assertEquals("""
+                | name       | age | gender | random     |
+                | :--------: | :-: | :----: | :--------: |
+                | Koce       | 20  | Male   | in pain    |
+                | MacbookAir | 2   | Apple  | space gray |""",
+            writer.toString());
     }
 
     @Test
@@ -121,11 +121,19 @@ public class CscProcessorTest {
     public void testDotSeparated() throws CsvDataNotCorrectException {
         StringReader reader = new StringReader("""
             dot.separated.bullshit
-            red.1.1
-            red.2.2""");
-
+            red.one.1
+            ted.two.2""");
         CsvProcessorAPI processor = new CsvProcessor();
-        processor.readCsv(reader, "\\Q.\\E");
+        processor.readCsv(reader, ".");
+        StringWriter writer = new StringWriter();
+        processor.writeTable(writer);
 
+        assertEquals("""
+                | dot | separated | bullshit |
+                | --- | --------- | -------- |
+                | red | one       | 1        |
+                | ted | two       | 2        |""",
+            writer.toString()
+        );
     }
 }

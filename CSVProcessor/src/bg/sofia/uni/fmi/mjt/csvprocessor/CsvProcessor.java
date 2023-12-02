@@ -30,9 +30,8 @@ public class CsvProcessor implements CsvProcessorAPI {
     public void readCsv(Reader reader, String delimiter) throws CsvDataNotCorrectException {
         try (var bufferedReader = new BufferedReader(reader)) {
             String line = bufferedReader.readLine();
-            String regex = escapeRegex(delimiter);
             while (line != null) {
-                table.addData(line.split(regex));
+                table.addData(line.split("\\Q" + delimiter + "\\E"));
                 line = bufferedReader.readLine();
             }
         } catch (IOException ex) {
@@ -52,29 +51,5 @@ public class CsvProcessor implements CsvProcessorAPI {
         } catch (IOException ex) {
             throw new UncheckedIOException("Exception during reading", ex);
         }
-    }
-
-    public static String escapeRegex(String string) {
-        int start = string.indexOf("\\Q");
-        if (start == -1) {
-            return string;
-        }
-
-        int end = string.indexOf("\\E");
-        StringBuilder builder = new StringBuilder(string.substring(0, start));
-        final int offset = 2;
-
-        for (var ch : string.substring(start + offset, end).toCharArray()) {
-            if (ch == '\\' || ch == '^' || ch == '$' || ch == '.' || ch == '|' ||
-                ch == '?' || ch == '*' || ch == '+' || ch == '(' || ch == ')' ||
-                ch == '[' || ch == ']' || ch == '{' || ch == '}') {
-                builder.append("\\").append(ch);
-            } else {
-                builder.append(ch);
-            }
-        }
-
-        return builder.append(escapeRegex(string.substring(end + offset)))
-            .toString();
     }
 }
