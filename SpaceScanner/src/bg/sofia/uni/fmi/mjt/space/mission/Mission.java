@@ -23,6 +23,7 @@ public record Mission(String id, String company, String location, LocalDate date
 
     public static Mission from(String line) {
         String[] tokens = line.split(DELIMITER);
+        Optional<Double> cost = tokens[COST].isBlank() ? Optional.empty() : Optional.of(Double.valueOf(tokens[COST]));
 
         Optional<Double> cost = tokens[COST].isBlank() ? Optional.empty() : Optional.of(Double.valueOf(tokens[COST]));
 
