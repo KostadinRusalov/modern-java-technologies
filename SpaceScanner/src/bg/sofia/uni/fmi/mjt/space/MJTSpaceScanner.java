@@ -21,6 +21,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static bg.sofia.uni.fmi.mjt.space.exception.Requirements.requireNotNull;
+import static bg.sofia.uni.fmi.mjt.space.exception.Requirements.requireTrue;
+
 public class MJTSpaceScanner implements SpaceScannerAPI {
     private final List<Mission> missions;
     private final List<Rocket> rockets;
@@ -136,16 +139,5 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     private List<Rocket> readRockets(Reader rocketReader) {
         throw new UnsupportedOperationException();
-    }
-
-    private static void requireNotNull(Object object, String message) {
-        requireTrue(object != null, message, IllegalArgumentException::new);
-    }
-
-    private static void requireTrue(boolean condition, String message,
-                                    Function<String, ? extends RuntimeException> exceptionConstructor) {
-        if (!condition) {
-            throw exceptionConstructor.apply(message);
-        }
     }
 }
