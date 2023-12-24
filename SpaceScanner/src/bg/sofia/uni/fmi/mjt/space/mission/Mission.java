@@ -21,8 +21,10 @@ public record Mission(String id, String company, String location, LocalDate date
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("\"EEE MMM dd, yyyy\"");
 
-    public static Mission of(String line) {
+    public static Mission from(String line) {
         String[] tokens = line.split(DELIMITER);
+
+        Optional<Double> cost = tokens[COST].isBlank() ? Optional.empty() : Optional.of(Double.valueOf(tokens[COST]));
 
         return new Mission(
             tokens[ID],
@@ -31,7 +33,7 @@ public record Mission(String id, String company, String location, LocalDate date
             LocalDate.parse(tokens[DATE], FORMATTER),
             Detail.of(tokens[DETAIL]),
             RocketStatus.from(tokens[ROCKET_STATUS]),
-            getOptionalCostFrom(tokens[COST]),
+            cost,
             MissionStatus.from(tokens[MISSION_STATUS])
         );
     }
@@ -39,9 +41,5 @@ public record Mission(String id, String company, String location, LocalDate date
     public String getCountry() {
         String[] tokens = location.split(", ");
         return tokens[tokens.length - 1];
-    }
-
-    private static Optional<Double> getOptionalCostFrom(String cost) {
-        return cost.isBlank() ? Optional.empty() : Optional.of(Double.valueOf(cost));
     }
 }
