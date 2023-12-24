@@ -13,4 +13,12 @@ public enum RocketStatus {
     public String toString() {
         return value;
     }
+
+    public static RocketStatus from(String rocketStatus) {
+        return switch (rocketStatus) {
+            case "StatusActive" -> RocketStatus.STATUS_ACTIVE;
+            case "StatusRetired" -> RocketStatus.STATUS_RETIRED;
+            default -> throw new IllegalArgumentException("Invalid rocket status");
+        };
+    }
 }

@@ -15,4 +15,8 @@ public enum MissionStatus {
     public String toString() {
         return value;
     }
+
+    public static MissionStatus from(String missionStatus) {
+        return MissionStatus.valueOf(missionStatus.replace(' ', '_').toUpperCase());
+    }
 }
