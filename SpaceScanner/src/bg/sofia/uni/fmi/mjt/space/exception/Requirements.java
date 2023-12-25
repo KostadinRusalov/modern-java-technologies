@@ -12,6 +12,10 @@ public class Requirements {
         requireTrue(object != null, message, exceptionConstructor);
     }
 
+    public static void requireTrue(boolean condition, String message) {
+        requireTrue(condition, message, IllegalArgumentException::new);
+    }
+
     public static void requireTrue(boolean condition, String message,
                                    Function<String, ? extends RuntimeException> exceptionConstructor) {
         if (!condition) {

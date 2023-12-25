@@ -39,7 +39,10 @@ public record Mission(String id, String company, String location, LocalDate date
     }
 
     public String getCountry() {
-        String[] tokens = location.split(", ");
-        return tokens[tokens.length - 1];
+        return location.substring(location.lastIndexOf(' ') + 1);
+    }
+
+    public boolean isBetween(LocalDate from, LocalDate to) {
+        return date.isAfter(from) && date.isBefore(to) || date.isEqual(from) || date.isEqual(to);
     }
 }
