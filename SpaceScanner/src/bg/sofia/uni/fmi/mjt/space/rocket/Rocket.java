@@ -26,8 +26,8 @@ public record Rocket(String id, String name, Optional<String> wiki, Optional<Dou
         return new Rocket(tokens[ID], tokens[NAME], wiki, height);
     }
 
-    public static List<Rocket> readCSV(Reader reader) {
-        try (var buffReader = new BufferedReader(reader)) {
+    public static List<Rocket> readCSV(Reader csvReader) {
+        try (var buffReader = new BufferedReader(csvReader)) {
             return buffReader.lines().skip(1).map(Rocket::from).toList();
         } catch (IOException ex) {
             throw new UncheckedIOException("Exception occurred while reading the rockets", ex);

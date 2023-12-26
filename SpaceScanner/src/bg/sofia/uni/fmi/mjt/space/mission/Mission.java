@@ -44,8 +44,8 @@ public record Mission(String id, String company, String location, LocalDate date
         );
     }
 
-    public static List<Mission> readCSV(Reader reader) {
-        try (var buffReader = new BufferedReader(reader)) {
+    public static List<Mission> readCSV(Reader csvReader) {
+        try (var buffReader = new BufferedReader(csvReader)) {
             return buffReader.lines().skip(1).map(Mission::from).toList();
         } catch (IOException ex) {
             throw new UncheckedIOException("Exception occurred while reading the missions", ex);

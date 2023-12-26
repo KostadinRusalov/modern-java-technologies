@@ -47,8 +47,8 @@ public class RocketTest {
     }
 
     @Test
-    public void testReadRocketsFromReader() {
-        String rockets = """
+    public void testReadCSV() {
+        String csv = """
             "",Name,Wiki,Rocket Height
             190,H-IIS,https://en.wikipedia.org/wiki/H-II,49.0 m
             191,H-I UM-129A (6SO),https://en.wikipedia.org/wiki/H-I,42.0 m
@@ -77,6 +77,6 @@ public class RocketTest {
             new Rocket("200", "Kuaizhou 11", Optional.empty(), Optional.of(25.0))
         );
 
-        assertEquals(expected, Rocket.readCSV(new StringReader(rockets)));
+        assertEquals(expected, Rocket.readCSV(new StringReader(csv)));
     }
 }
