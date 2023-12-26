@@ -9,28 +9,23 @@ import bg.sofia.uni.fmi.mjt.space.rocket.Rocket;
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
 
 import javax.crypto.SecretKey;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UncheckedIOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static bg.sofia.uni.fmi.mjt.space.exception.Requirements.requireNotNull;
 import static bg.sofia.uni.fmi.mjt.space.exception.Requirements.requireTrue;
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingDouble;
-import static java.util.Comparator.comparingInt;
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -43,14 +38,14 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     private final SecretKey secretKey;
 
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
-        missions = readMissions(missionsReader);
-        rockets = readRockets(rocketsReader);
+        missions = Mission.readCSV(missionsReader);
+        rockets = Rocket.readCSV(rocketsReader);
         this.secretKey = secretKey;
     }
 
     @Override
     public Collection<Mission> getAllMissions() {
-        return Collections.unmodifiableList(missions);
+        return List.copyOf(missions);
     }
 
     @Override
@@ -70,17 +65,17 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
             "To date cannot be before From date", TimeFrameMismatchException::new);
 
         return missions.stream()
-            .filter(m -> m.missionStatus() == MissionStatus.SUCCESS && m.isBetween(from, to))
-            .collect(groupingBy(Mission::company))
+            .filter(m -> m.missionStatus() == MissionStatus.SUCCESS && m.isBetweenInclusive(from, to))
+            .collect(groupingBy(Mission::company, counting()))
             .entrySet().stream()
-            .max(comparingInt(e -> e.getValue().size()))
+            .max(comparingLong(Map.Entry::getValue))
             .map(Map.Entry::getKey)
             .orElse("");
     }
 
     @Override
     public Map<String, Collection<Mission>> getMissionsPerCountry() {
-        return missions.stream().collect(groupingBy(Mission::getCountry, toCollection(ArrayList::new)));
+        return missions.stream().collect(groupingBy(Mission::getCountry, toCollection(HashSet::new)));
     }
 
     @Override
@@ -98,18 +93,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, String> getMostDesiredLocationForMissionsPerCompany() {
-        return missions.stream()
-            .collect(groupingBy(Mission::company, groupingBy(Mission::location, counting())))
-            .entrySet().stream()
-            .map(e -> Map.entry(
-                e.getKey(),
-                e.getValue().entrySet()
-                    .stream()
-                    .max(comparingLong(Map.Entry::getValue))
-                    .map(Map.Entry::getKey)
-                    .orElse("")
-            ))
-            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return mapCompanyToLocationWithMostMissions(missions.stream());
     }
 
     @Override
@@ -119,24 +103,14 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         requireTrue(to.isEqual(from) || to.isAfter(from),
             "To date cannot be before From date", TimeFrameMismatchException::new);
 
-        return missions.stream()
-            .filter(m -> m.missionStatus() == MissionStatus.SUCCESS && m.isBetween(from, to))
-            .collect(groupingBy(Mission::company, groupingBy(Mission::location, counting())))
-            .entrySet().stream()
-            .map(e -> Map.entry(
-                e.getKey(),
-                e.getValue().entrySet()
-                    .stream()
-                    .max(comparingLong(Map.Entry::getValue))
-                    .map(Map.Entry::getKey)
-                    .orElse("")
-            ))
-            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return mapCompanyToLocationWithMostMissions(missions.stream()
+            .filter(m -> m.missionStatus() == MissionStatus.SUCCESS && m.isBetweenInclusive(from, to))
+        );
     }
 
     @Override
     public Collection<Rocket> getAllRockets() {
-        return Collections.unmodifiableList(rockets);
+        return List.copyOf(rockets);
     }
 
     @Override
@@ -152,7 +126,9 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, Optional<String>> getWikiPageForRocket() {
-        return rockets.stream().collect(toMap(Rocket::name, Rocket::wiki));
+        return rockets.stream()
+            .filter(r -> r.wiki().isPresent())
+            .collect(toMap(Rocket::name, Rocket::wiki));
     }
 
     @Override
@@ -182,20 +158,19 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         new Rijndael(secretKey).encrypt(new ByteArrayInputStream(rocket.getBytes()), outputStream);
     }
 
-    private List<Mission> readMissions(Reader missionReader) {
-        try (var buffReader = new BufferedReader(missionReader)) {
-            return buffReader.lines().map(Mission::from).toList();
-        } catch (IOException ex) {
-            throw new UncheckedIOException("Exception occurred while reading the missions", ex);
-        }
-    }
-
-    private List<Rocket> readRockets(Reader rocketReader) {
-        try (var buffReader = new BufferedReader(rocketReader)) {
-            return buffReader.lines().map(Rocket::from).toList();
-        } catch (IOException ex) {
-            throw new UncheckedIOException("Exception occurred while reading the rockets", ex);
-        }
+    private static Map<String, String> mapCompanyToLocationWithMostMissions(Stream<Mission> missionStream) {
+        return missionStream
+            .collect(groupingBy(Mission::company, groupingBy(Mission::location, counting())))
+            .entrySet().stream()
+            .map(e -> Map.entry(
+                e.getKey(),
+                e.getValue()
+                    .entrySet().stream()
+                    .max(comparingLong(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
+                    .orElse("")
+            ))
+            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private Set<String> getRocketNamesInTopNMostExpensiveMissions(int n, MissionStatus missionStatus,
@@ -210,7 +185,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     private String getMostReliableRocket(LocalDate from, LocalDate to) {
         return missions.stream()
-            .filter(m -> m.isBetween(from, to))
+            .filter(m -> m.isBetweenInclusive(from, to))
             .collect(groupingBy(m -> m.detail().rocketName()))
             .entrySet().stream()
             .max(comparingDouble(this::getRocketReliability))
@@ -219,6 +194,10 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     }
 
     private double getRocketReliability(Map.Entry<String, List<Mission>> rocketMissions) {
+        if (rocketMissions.getValue().isEmpty()) {
+            return 0;
+        }
+
         long allMissions = rocketMissions.getValue().size();
         long successfulMissions = rocketMissions.getValue()
             .stream()
