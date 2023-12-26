@@ -56,7 +56,7 @@ public record Mission(String id, String company, String location, LocalDate date
         return location.substring(location.lastIndexOf(' ') + 1);
     }
 
-    public boolean isBetween(LocalDate from, LocalDate to) {
+    public boolean isBetweenInclusive(LocalDate from, LocalDate to) {
         return date.isAfter(from) && date.isBefore(to) || date.isEqual(from) || date.isEqual(to);
     }
 }
