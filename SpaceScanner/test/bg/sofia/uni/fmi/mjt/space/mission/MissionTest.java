@@ -60,22 +60,22 @@ public class MissionTest {
 
     @Test
     public void testIsBetweenWhenDateIsEqualToFrom() {
-        assertTrue(mission.isBetween(LocalDate.of(2015, 8, 19), LocalDate.of(2015, 12, 12)));
+        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 8, 19), LocalDate.of(2015, 12, 12)));
     }
 
     @Test
     public void testIsBetweenWhenDateIsEqualToTo() {
-        assertTrue(mission.isBetween(LocalDate.of(2015, 1, 1), LocalDate.of(2015, 8, 19)));
+        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 1, 1), LocalDate.of(2015, 8, 19)));
     }
 
     @Test
     public void testIsBetween() {
-        assertTrue(mission.isBetween(LocalDate.of(2015, 7, 19), LocalDate.of(2015, 9, 12)));
+        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 7, 19), LocalDate.of(2015, 9, 12)));
     }
 
     @Test
     public void testIsBetweenWhenNotInBetween() {
-        assertFalse(mission.isBetween(LocalDate.of(2015, 9, 19), LocalDate.of(2015, 12, 12)));
+        assertFalse(mission.isBetweenInclusive(LocalDate.of(2015, 9, 19), LocalDate.of(2015, 12, 12)));
     }
 
     @Test
