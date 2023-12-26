@@ -11,13 +11,11 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 public class Rijndael implements SymmetricBlockCipher {
-    private static final String CIPHER = "AES";
+    public static final String ALGORITHM = "AES";
     private final SecretKey secretKey;
 
     public Rijndael(SecretKey secretKey) {
@@ -27,7 +25,7 @@ public class Rijndael implements SymmetricBlockCipher {
     @Override
     public void encrypt(InputStream inputStream, OutputStream outputStream) throws CipherException {
         try {
-            Cipher cipher = Cipher.getInstance(CIPHER);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             try (var encryptedOutput = new CipherOutputStream(outputStream, cipher)) {
                 encryptedOutput.write(inputStream.readAllBytes());
@@ -46,7 +44,7 @@ public class Rijndael implements SymmetricBlockCipher {
     @Override
     public void decrypt(InputStream inputStream, OutputStream outputStream) throws CipherException {
         try {
-            Cipher cipher = Cipher.getInstance(CIPHER);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             try (var decryptedInput = new CipherInputStream(inputStream, cipher)) {
                 outputStream.write(decryptedInput.readAllBytes());
