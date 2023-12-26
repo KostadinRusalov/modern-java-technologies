@@ -2,8 +2,13 @@ package bg.sofia.uni.fmi.mjt.space.mission;
 
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 public record Mission(String id, String company, String location, LocalDate date, Detail detail,
@@ -24,18 +29,27 @@ public record Mission(String id, String company, String location, LocalDate date
     public static Mission from(String line) {
         String[] tokens = line.split(DELIMITER);
 
-        Optional<Double> cost = tokens[COST].isBlank() ? Optional.empty() : Optional.of(Double.valueOf(tokens[COST]));
+        Optional<Double> cost = tokens[COST].isBlank() ? Optional.empty() :
+            Optional.of(Double.valueOf(tokens[COST].substring(1, tokens[COST].length() - 1)));
 
         return new Mission(
             tokens[ID],
             tokens[COMPANY],
-            tokens[LOCATION],
+            tokens[LOCATION].substring(1, tokens[LOCATION].length() - 1),
             LocalDate.parse(tokens[DATE], FORMATTER),
-            Detail.of(tokens[DETAIL]),
+            Detail.from(tokens[DETAIL]),
             RocketStatus.from(tokens[ROCKET_STATUS]),
             cost,
             MissionStatus.from(tokens[MISSION_STATUS])
         );
+    }
+
+    public static List<Mission> readCSV(Reader reader) {
+        try (var buffReader = new BufferedReader(reader)) {
+            return buffReader.lines().skip(1).map(Mission::from).toList();
+        } catch (IOException ex) {
+            throw new UncheckedIOException("Exception occurred while reading the missions", ex);
+        }
     }
 
     public String getCountry() {

@@ -1,5 +1,10 @@
 package bg.sofia.uni.fmi.mjt.space.rocket;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Optional;
 
 public record Rocket(String id, String name, Optional<String> wiki, Optional<Double> height) {
@@ -19,5 +24,13 @@ public record Rocket(String id, String name, Optional<String> wiki, Optional<Dou
             Optional.of(Double.valueOf(tokens[HEIGHT].substring(0, tokens[HEIGHT].indexOf(' '))));
 
         return new Rocket(tokens[ID], tokens[NAME], wiki, height);
+    }
+
+    public static List<Rocket> readCSV(Reader reader) {
+        try (var buffReader = new BufferedReader(reader)) {
+            return buffReader.lines().skip(1).map(Rocket::from).toList();
+        } catch (IOException ex) {
+            throw new UncheckedIOException("Exception occurred while reading the rockets", ex);
+        }
     }
 }
