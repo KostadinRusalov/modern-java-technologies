@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.photoalbum;
+package bg.sofia.uni.fmi.mjt.photoalbum.queue;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

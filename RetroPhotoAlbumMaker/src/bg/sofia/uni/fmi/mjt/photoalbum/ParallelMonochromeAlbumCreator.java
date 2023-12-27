@@ -1,5 +1,10 @@
 package bg.sofia.uni.fmi.mjt.photoalbum;
 
+import bg.sofia.uni.fmi.mjt.photoalbum.image.Image;
+import bg.sofia.uni.fmi.mjt.photoalbum.image.ImageConsumer;
+import bg.sofia.uni.fmi.mjt.photoalbum.image.ImageProducer;
+import bg.sofia.uni.fmi.mjt.photoalbum.queue.BlockingQueue;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -27,13 +32,7 @@ public class ParallelMonochromeAlbumCreator implements MonochromeAlbumCreator {
             int count = 0;
             for (var imagePath : imageDir) {
                 count++;
-                Thread.ofVirtual().name("producer-" + count).start(() -> {
-                    try {
-                        imageQueue.put(Image.loadImage(imagePath));
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                });
+                Thread.ofVirtual().start(new ImageProducer(imageQueue, imagePath));
             }
             return count;
         } catch (IOException e) {
@@ -42,21 +41,15 @@ public class ParallelMonochromeAlbumCreator implements MonochromeAlbumCreator {
     }
 
     private Thread[] startConsumers(String directory, BlockingQueue<Image> imageQueue, BlockingQueue<Object> acks) {
+        try {
+            Files.createDirectories(Path.of(directory));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Exception while creating the directory", e);
+        }
+
         Thread[] consumers = new Thread[imageProcessorsCount];
         for (int i = 0; i < imageProcessorsCount; i++) {
-            consumers[i] = Thread.ofVirtual().start(() -> {
-                while (true) {
-                    try {
-                        Image image = imageQueue.take();
-                        Image converted = Image.convertToBlackAndWhite(image);
-                        Image.saveImage(converted, directory);
-                        acks.put(new Object());
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                }
-            });
+            consumers[i] = Thread.ofVirtual().start(new ImageConsumer(directory, imageQueue, acks));
         }
         return consumers;
     }

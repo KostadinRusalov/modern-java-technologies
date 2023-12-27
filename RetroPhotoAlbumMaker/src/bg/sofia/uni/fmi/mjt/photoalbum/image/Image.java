@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.photoalbum;
+package bg.sofia.uni.fmi.mjt.photoalbum.image;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
