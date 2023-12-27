@@ -1,21 +1,17 @@
 package bg.sofia.uni.fmi.mjt.space.rocket;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.util.List;
+import bg.sofia.uni.fmi.mjt.space.data.CSVReader;
+
 import java.util.Optional;
 
 public record Rocket(String id, String name, Optional<String> wiki, Optional<Double> height) {
-    private static final String DELIMITER = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
     private static final int ID = 0;
     private static final int NAME = 1;
     private static final int WIKI = 2;
     private static final int HEIGHT = 3;
 
     public static Rocket from(String line) {
-        String[] tokens = line.split(DELIMITER);
+        String[] tokens = line.split(CSVReader.DELIMITER);
 
         Optional<String> wiki = tokens.length <= WIKI || tokens[WIKI].isBlank() ?
             Optional.empty() : Optional.of(tokens[WIKI]);
@@ -28,13 +24,5 @@ public record Rocket(String id, String name, Optional<String> wiki, Optional<Dou
         }
 
         return new Rocket(tokens[ID], tokens[NAME], wiki, height);
-    }
-
-    public static List<Rocket> readCSV(Reader csvReader) {
-        try (var buffReader = new BufferedReader(csvReader)) {
-            return buffReader.lines().skip(1).map(Rocket::from).toList();
-        } catch (IOException ex) {
-            throw new UncheckedIOException("Exception occurred while reading the rockets", ex);
-        }
     }
 }

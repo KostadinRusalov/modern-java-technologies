@@ -2,6 +2,7 @@ package bg.sofia.uni.fmi.mjt.space.rocket;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bg.sofia.uni.fmi.mjt.space.data.CSVReader;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -16,7 +17,7 @@ public class RocketTest {
         Rocket expected = new Rocket("35", "Antares 230+",
             Optional.of("https://en.wikipedia.org/wiki/Antares_%28rocket%29#Antares_230+"), Optional.of(42.5));
 
-        assertEquals(expected, Rocket.from(line));
+        assertEquals(expected, Rocket.from(line), "Rocket with full data should be parsed correctly");
     }
 
     @Test
@@ -24,7 +25,7 @@ public class RocketTest {
         String line = "35,Antares 230+,,42.5 m";
         Rocket expected = new Rocket("35", "Antares 230+", Optional.empty(), Optional.of(42.5));
 
-        assertEquals(expected, Rocket.from(line));
+        assertEquals(expected, Rocket.from(line), "Rocket without wiki should be parsed correctly");
     }
 
     @Test
@@ -34,7 +35,7 @@ public class RocketTest {
             Optional.of("https://en.wikipedia.org/wiki/Antares_%28rocket%29#Antares_230+"),
             Optional.empty());
 
-        assertEquals(expected, Rocket.from(line));
+        assertEquals(expected, Rocket.from(line), "Rocket without height should be parsed correctly");
     }
 
     @Test
@@ -42,16 +43,16 @@ public class RocketTest {
         String line = "35,Antares 230+,,";
         Rocket expected = new Rocket("35", "Antares 230+", Optional.empty(), Optional.empty());
 
-        assertEquals(expected, Rocket.from(line));
+        assertEquals(expected, Rocket.from(line), "Rocket without wiki and height should be parsed correctly");
     }
 
     @Test
-    public void testRocketFromStringWithCommaInFields() {
+    public void testRocketFromStringWithCommasInFields() {
         String line = "150,\"Delta IV Medium+ (5,4)\",https://en.wikipedia.org/wiki/Delta_IV,66.4 m";
         Rocket expected = new Rocket("150", "Delta IV Medium+ (5,4)",
             Optional.of("https://en.wikipedia.org/wiki/Delta_IV"), Optional.of(66.4));
 
-        assertEquals(expected, Rocket.from(line));
+        assertEquals(expected, Rocket.from(line), "Rocket with name with commas should be parsed correctly");
     }
 
     @Test
@@ -88,6 +89,7 @@ public class RocketTest {
             new Rocket("200", "Kuaizhou 11", Optional.empty(), Optional.of(25.0))
         );
 
-        assertEquals(expected, Rocket.readCSV(new StringReader(csv)));
+        assertEquals(expected, CSVReader.read(new StringReader(csv), Rocket::from),
+            "Rockets should be read correctly when reading from a csv reader");
     }
 }

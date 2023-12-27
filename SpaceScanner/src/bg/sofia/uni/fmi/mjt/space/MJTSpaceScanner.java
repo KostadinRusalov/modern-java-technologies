@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.space;
 
 import bg.sofia.uni.fmi.mjt.space.algorithm.Rijndael;
+import bg.sofia.uni.fmi.mjt.space.data.CSVReader;
 import bg.sofia.uni.fmi.mjt.space.exception.CipherException;
 import bg.sofia.uni.fmi.mjt.space.exception.TimeFrameMismatchException;
 import bg.sofia.uni.fmi.mjt.space.mission.Mission;
@@ -34,13 +35,13 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 
 public class MJTSpaceScanner implements SpaceScannerAPI {
-    private final List<Mission> missions;
-    private final List<Rocket> rockets;
+    private final Collection<Mission> missions;
+    private final Collection<Rocket> rockets;
     private final SecretKey secretKey;
 
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
-        missions = Mission.readCSV(missionsReader);
-        rockets = Rocket.readCSV(rocketsReader);
+        missions = CSVReader.read(missionsReader, Mission::from);
+        rockets = CSVReader.read(rocketsReader, Rocket::from);
         this.secretKey = secretKey;
     }
 
@@ -53,9 +54,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     public Collection<Mission> getAllMissions(MissionStatus missionStatus) {
         requireNotNull(missionStatus, "Mission status cannot be null");
 
-        return missions.stream()
-            .filter(m -> m.missionStatus() == missionStatus)
-            .toList();
+        return missions.stream().filter(m -> m.missionStatus() == missionStatus).toList();
     }
 
     @Override

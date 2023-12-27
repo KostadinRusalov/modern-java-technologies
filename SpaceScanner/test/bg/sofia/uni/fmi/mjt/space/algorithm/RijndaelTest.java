@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RijndaelTest {
 
@@ -37,6 +38,20 @@ public class RijndaelTest {
 
         rijndael.decrypt(encryptedInput, outputStream);
 
-        assertEquals(message, outputStream.toString());
+        assertEquals(message, outputStream.toString(), "Message should be the same after decrypting the encryption");
+    }
+
+    @Test
+    public void testEncryptInvalidKey() {
+        assertThrows(CipherException.class,
+            () -> new Rijndael(null).encrypt(new ByteArrayInputStream("".getBytes()), new ByteArrayOutputStream()),
+            "Encrypting with invalid key should throw cipher exception");
+    }
+
+    @Test
+    public void testDecryptInvalidKey() {
+        assertThrows(CipherException.class,
+            () -> new Rijndael(null).decrypt(new ByteArrayInputStream("".getBytes()), new ByteArrayOutputStream()),
+            "Decrypting with invalid key should throw cipher exception");
     }
 }

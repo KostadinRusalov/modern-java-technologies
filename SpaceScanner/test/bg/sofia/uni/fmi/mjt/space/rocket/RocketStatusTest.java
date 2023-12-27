@@ -8,6 +8,7 @@ public class RocketStatusTest {
 
     @Test
     public void testRocketStatusFromInvalidString() {
-        assertThrows(IllegalArgumentException.class, () -> RocketStatus.from("StatusInvalid"));
+        assertThrows(IllegalArgumentException.class, () -> RocketStatus.from("StatusInvalid"),
+            "Rocket status should not be parsed when it is invalid");
     }
 }
