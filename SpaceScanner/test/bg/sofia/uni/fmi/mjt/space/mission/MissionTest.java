@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.space.mission;
 
+import bg.sofia.uni.fmi.mjt.space.data.CSVReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +39,7 @@ public class MissionTest {
             LocalDate.of(2020, 8, 6), new Detail("Long March 2D", "Gaofen-9 04 & Q-SAT"),
             STATUS_ACTIVE, Optional.of(29.75), SUCCESS);
 
-        assertEquals(expected, Mission.from(line));
+        assertEquals(expected, Mission.from(line), "Mission with full data should be parsed correctly");
     }
 
     @Test
@@ -50,32 +51,46 @@ public class MissionTest {
             LocalDate.of(2016, 9, 1), new Detail("Falcon 9 Block 3", "AMOS-6"),
             STATUS_RETIRED, Optional.empty(), PRELAUNCH_FAILURE);
 
-        assertEquals(expected, Mission.from(line));
+        assertEquals(expected, Mission.from(line), "Mission without cost data should be parsed correctly");
     }
 
     @Test
     public void testGetCountry() {
-        assertEquals("Japan", mission.getCountry());
+        assertEquals("Japan", mission.getCountry(), "Country should be parsed correctly");
+    }
+
+    @Test
+    public void testGetRocketStatus() {
+        assertEquals("StatusRetired", mission.rocketStatus().toString(), "Rocket status should be parsed correctly");
+    }
+
+    @Test
+    public void testGetMissionStatus() {
+        assertEquals("Success", mission.missionStatus().toString(), "Mission status should be parsed correctly");
     }
 
     @Test
     public void testIsBetweenWhenDateIsEqualToFrom() {
-        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 8, 19), LocalDate.of(2015, 12, 12)));
+        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 8, 19), LocalDate.of(2015, 12, 12)),
+            "Mission should be between two dates when the first date is the mission's date");
     }
 
     @Test
     public void testIsBetweenWhenDateIsEqualToTo() {
-        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 1, 1), LocalDate.of(2015, 8, 19)));
+        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 1, 1), LocalDate.of(2015, 8, 19)),
+            "Mission should be between two dates when the second date is the mission's date");
     }
 
     @Test
     public void testIsBetween() {
-        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 7, 19), LocalDate.of(2015, 9, 12)));
+        assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 7, 19), LocalDate.of(2015, 9, 12)),
+            "Mission should be between two dates when they are not inclusive");
     }
 
     @Test
     public void testIsBetweenWhenNotInBetween() {
-        assertFalse(mission.isBetweenInclusive(LocalDate.of(2015, 9, 19), LocalDate.of(2015, 12, 12)));
+        assertFalse(mission.isBetweenInclusive(LocalDate.of(2015, 9, 19), LocalDate.of(2015, 12, 12)),
+            "Mission should not be between two dates");
     }
 
     @Test
@@ -99,6 +114,7 @@ public class MissionTest {
                 new Detail("Thor-DM 18 Able I", "Pioneer 1"), STATUS_RETIRED, Optional.empty(), PARTIAL_FAILURE)
         );
 
-        assertEquals(expected, Mission.readCSV(new StringReader(csv)));
+        assertEquals(expected, CSVReader.read(new StringReader(csv), Mission::from),
+            "Missions should be read correctly when reading from a csv reader");
     }
 }

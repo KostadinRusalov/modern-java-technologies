@@ -32,12 +32,8 @@ public class Rijndael implements SymmetricBlockCipher {
             } catch (IOException e) {
                 throw new CipherException("An I\\O exception occurred while trying to encrypt", e);
             }
-        } catch (NoSuchPaddingException e) {
-            throw new CipherException("Requested padding mechanism is unavailable", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new CipherException("Requested algorithm is unavailable", e);
-        } catch (InvalidKeyException e) {
-            throw new CipherException("Provided secret key is invalid", e);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new CipherException("Encryption cannot be completed", e);
         }
     }
 
@@ -51,12 +47,8 @@ public class Rijndael implements SymmetricBlockCipher {
             } catch (IOException e) {
                 throw new CipherException("An I\\O exception occurred while trying to decrypt", e);
             }
-        } catch (NoSuchPaddingException e) {
-            throw new CipherException("Requested padding mechanism is unavailable", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new CipherException("Requested algorithm is unavailable", e);
-        } catch (InvalidKeyException e) {
-            throw new CipherException("Provided secret key is invalid", e);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new CipherException("Decryption cannot be completed", e);
         }
     }
 }
