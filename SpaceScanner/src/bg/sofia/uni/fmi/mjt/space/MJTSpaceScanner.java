@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -75,7 +76,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, Collection<Mission>> getMissionsPerCountry() {
-        return missions.stream().collect(groupingBy(Mission::getCountry, toCollection(HashSet::new)));
+        return missions.stream().collect(groupingBy(Mission::getCountry, toCollection(ArrayList::new)));
     }
 
     @Override
@@ -126,9 +127,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, Optional<String>> getWikiPageForRocket() {
-        return rockets.stream()
-            .filter(r -> r.wiki().isPresent())
-            .collect(toMap(Rocket::name, Rocket::wiki));
+        return rockets.stream().collect(toMap(Rocket::name, Rocket::wiki));
     }
 
     @Override

@@ -23,14 +23,13 @@ public record Mission(String id, String company, String location, LocalDate date
     private static final int ROCKET_STATUS = 5;
     private static final int COST = 6;
     private static final int MISSION_STATUS = 7;
-
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("\"EEE MMM dd, yyyy\"");
 
     public static Mission from(String line) {
         String[] tokens = line.split(DELIMITER);
 
         Optional<Double> cost = tokens[COST].isBlank() ? Optional.empty() :
-            Optional.of(Double.valueOf(tokens[COST].substring(1, tokens[COST].length() - 1)));
+            Optional.of(Double.valueOf(tokens[COST].substring(1, tokens[COST].length() - 1).replaceAll(",", "")));
 
         return new Mission(
             tokens[ID],
@@ -53,7 +52,7 @@ public record Mission(String id, String company, String location, LocalDate date
     }
 
     public String getCountry() {
-        return location.substring(location.lastIndexOf(' ') + 1);
+        return location.substring(location.lastIndexOf(',') + 2);
     }
 
     public boolean isBetweenInclusive(LocalDate from, LocalDate to) {

@@ -59,6 +59,16 @@ public class MissionTest {
     }
 
     @Test
+    public void testGetRocketStatus() {
+        assertEquals("StatusRetired", mission.rocketStatus().toString());
+    }
+
+    @Test
+    public void testGetMissionStatus() {
+        assertEquals("Success", mission.missionStatus().toString());
+    }
+
+    @Test
     public void testIsBetweenWhenDateIsEqualToFrom() {
         assertTrue(mission.isBetweenInclusive(LocalDate.of(2015, 8, 19), LocalDate.of(2015, 12, 12)));
     }

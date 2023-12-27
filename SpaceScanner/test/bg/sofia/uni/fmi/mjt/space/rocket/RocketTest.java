@@ -14,8 +14,7 @@ public class RocketTest {
     public void testRocketFromStringWithFullData() {
         String line = "35,Antares 230+,https://en.wikipedia.org/wiki/Antares_%28rocket%29#Antares_230+,42.5 m";
         Rocket expected = new Rocket("35", "Antares 230+",
-            Optional.of("https://en.wikipedia.org/wiki/Antares_%28rocket%29#Antares_230+"),
-            Optional.of(42.5));
+            Optional.of("https://en.wikipedia.org/wiki/Antares_%28rocket%29#Antares_230+"), Optional.of(42.5));
 
         assertEquals(expected, Rocket.from(line));
     }
@@ -47,6 +46,15 @@ public class RocketTest {
     }
 
     @Test
+    public void testRocketFromStringWithCommaInFields() {
+        String line = "150,\"Delta IV Medium+ (5,4)\",https://en.wikipedia.org/wiki/Delta_IV,66.4 m";
+        Rocket expected = new Rocket("150", "Delta IV Medium+ (5,4)",
+            Optional.of("https://en.wikipedia.org/wiki/Delta_IV"), Optional.of(66.4));
+
+        assertEquals(expected, Rocket.from(line));
+    }
+
+    @Test
     public void testReadCSV() {
         String csv = """
             "",Name,Wiki,Rocket Height
@@ -67,12 +75,15 @@ public class RocketTest {
             new Rocket("190", "H-IIS", Optional.of("https://en.wikipedia.org/wiki/H-II"), Optional.of(49.0)),
             new Rocket("191", "H-I UM-129A (6SO)", Optional.of("https://en.wikipedia.org/wiki/H-I"), Optional.of(42.0)),
             new Rocket("192", "H-I UM-129A (9SO)", Optional.empty(), Optional.of(42.0)),
-            new Rocket("193", "Hyperbola-1", Optional.of("https://en.wikipedia.org/wiki/I-Space_(Chinese_company)#Hyperbola-1"), Optional.of(21.0)),
+            new Rocket("193", "Hyperbola-1",
+                Optional.of("https://en.wikipedia.org/wiki/I-Space_(Chinese_company)#Hyperbola-1"), Optional.of(21.0)),
             new Rocket("194", "Jielong-1", Optional.empty(), Optional.empty()),
             new Rocket("195", "Juno I", Optional.of("https://en.wikipedia.org/wiki/Juno_I"), Optional.of(21.2)),
             new Rocket("196", "Juno II", Optional.of("https://en.wikipedia.org/wiki/Juno_II"), Optional.of(24.0)),
-            new Rocket("197", "Kaituozhe 1", Optional.of("https://en.wikipedia.org/wiki/Kaituozhe_(rocket_family)"), Optional.empty()),
-            new Rocket("198", "Kaituozhe 2", Optional.of("https://en.wikipedia.org/wiki/Kaituozhe_(rocket_family)#KT-2"), Optional.empty()),
+            new Rocket("197", "Kaituozhe 1", Optional.of("https://en.wikipedia.org/wiki/Kaituozhe_(rocket_family)"),
+                Optional.empty()),
+            new Rocket("198", "Kaituozhe 2",
+                Optional.of("https://en.wikipedia.org/wiki/Kaituozhe_(rocket_family)#KT-2"), Optional.empty()),
             new Rocket("199", "Kuaizhou 1", Optional.of("https://en.wikipedia.org/wiki/Kuaizhou"), Optional.empty()),
             new Rocket("200", "Kuaizhou 11", Optional.empty(), Optional.of(25.0))
         );
