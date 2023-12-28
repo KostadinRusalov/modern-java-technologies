@@ -32,7 +32,7 @@ public interface OrderRepository {
     /**
      * Retrieves all successful orders for T-Shirts
      *
-     * @return response which contains status and all successful orders for T-Shirts from the repository, in undefined order.
+     * @return response containing status and all successful orders for T-Shirts from the repository, in undefined order
      * If there are no such orders in the repository, returns an empty collection.
      */
     Response getAllSuccessfulOrders();

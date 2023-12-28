@@ -15,4 +15,12 @@ public enum Destination {
     public String getName() {
         return name;
     }
+
+    public static Destination of(String name) {
+        try {
+            return Destination.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            return Destination.UNKNOWN;
+        }
+    }
 }

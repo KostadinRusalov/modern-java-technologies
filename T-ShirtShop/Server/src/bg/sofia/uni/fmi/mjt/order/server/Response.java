@@ -4,6 +4,8 @@ import bg.sofia.uni.fmi.mjt.order.server.order.Order;
 
 import java.util.Collection;
 
+import static java.lang.StringTemplate.STR;
+
 public record Response(Status status, String additionalInfo, Collection<Order> orders) {
     private enum Status {
         OK, CREATED, DECLINED, NOT_FOUND
@@ -16,7 +18,7 @@ public record Response(Status status, String additionalInfo, Collection<Order> o
      * @return response with status Status.CREATED and with proper message for additional info
      */
     public static Response create(int id) {
-        throw new UnsupportedOperationException();
+        return new Response(Status.CREATED, "ORDER_ID=" + id, null);
     }
 
     /**
@@ -26,7 +28,7 @@ public record Response(Status status, String additionalInfo, Collection<Order> o
      * @return response with status Status.OK and Collection of orders
      */
     public static Response ok(Collection<Order> orders) {
-        throw new UnsupportedOperationException();
+        return new Response(Status.OK, null, orders);
     }
 
     /**
@@ -36,7 +38,7 @@ public record Response(Status status, String additionalInfo, Collection<Order> o
      * @return response with status Status.DECLINED and errorMessage as additionalInfo
      */
     public static Response decline(String errorMessage) {
-        throw new UnsupportedOperationException();
+        return new Response(Status.DECLINED, errorMessage, null);
     }
 
     /**
@@ -46,6 +48,11 @@ public record Response(Status status, String additionalInfo, Collection<Order> o
      * @return response with status Status.NOT_FOUND and with proper message for additional info
      */
     public static Response notFound(int id) {
-        throw new UnsupportedOperationException();
+        return new Response(Status.NOT_FOUND, "Order with id = %d does not exist.".formatted(id), null);
+    }
+
+    @Override
+    public String toString() {
+        return null;
     }
 }
