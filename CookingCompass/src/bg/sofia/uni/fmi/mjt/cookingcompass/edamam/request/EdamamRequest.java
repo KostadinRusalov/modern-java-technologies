@@ -1,47 +1,70 @@
-package bg.sofia.uni.fmi.mjt.cookingcompass;
+package bg.sofia.uni.fmi.mjt.cookingcompass.edamam;
 
+import bg.sofia.uni.fmi.mjt.cookingcompass.RecipeRequest;
 import bg.sofia.uni.fmi.mjt.cookingcompass.types.CuisineType;
 import bg.sofia.uni.fmi.mjt.cookingcompass.types.DietType;
 import bg.sofia.uni.fmi.mjt.cookingcompass.types.DishType;
 import bg.sofia.uni.fmi.mjt.cookingcompass.types.HealthType;
 import bg.sofia.uni.fmi.mjt.cookingcompass.types.MealType;
+import bg.sofia.uni.fmi.mjt.cookingcompass.types.RecipeType;
+
+import java.net.URI;
+import java.net.http.HttpRequest;
 
 public class EdamamRequest implements RecipeRequest {
 
     private final String request;
+    private final HttpRequest httpRequest;
 
     private EdamamRequest(String request) {
         this.request = request;
+        this.httpRequest = HttpRequest.newBuilder(URI.create(request)).build();
     }
 
     public String getRequest() {
         return request;
     }
 
+    public HttpRequest getHttpRequest() {
+        return httpRequest;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
+
+    public static Builder builder(RecipeType recipeType) {
+        return new Builder(recipeType);
+    }
+
 
     public static class Builder implements RecipeRequest.Builder {
 
         private static final String BASE_URL = "https://api.edamam.com/api/recipes/v2?type=public";
         private static final String APP_ID = "&app_id=e410fd45";
         private static final String APP_KEY = "&app_key=6d909ebfe83fafeb792e46f6f1a9cd81";
+        private static final String TYPE = "&type=";
         private static final String QUERY = "&q=";
         private static final String CUISINE_TYPE = "&cuisineType=";
         private static final String DIET_TYPE = "&diet=";
         private static final String DISH_TYPE = "&dishType=";
         private static final String HEALTH_TYPE = "&health=";
         private static final String MEAL_TYPE = "&mealType=";
-        private static final String FIELDS =
-            "&field=label&field=dietLabels&field=healthLabels&field=totalWeight&field=cuisineType&field=mealType&field=dishType&field=ingredientLines";
+        //        private static final String FIELDS =
+//            "&field=label&field=dietLabels&field=healthLabels&field=totalWeight&field=cuisineType&field=mealType&field=dishType&field=ingredientLines";
         private final StringBuilder requestUrl;
 
         public Builder() {
+            this(RecipeType.PUBLIC);
+        }
+
+        public Builder(RecipeType recipeType) {
             requestUrl = new StringBuilder(BASE_URL)
                 .append(APP_ID)
                 .append(APP_KEY)
-                .append(FIELDS);
+                .append(TYPE)
+                .append(recipeType);
+//                .append(FIELDS);
         }
 
         @Override
