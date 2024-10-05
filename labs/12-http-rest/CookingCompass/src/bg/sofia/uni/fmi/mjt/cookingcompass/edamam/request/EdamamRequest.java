@@ -40,8 +40,8 @@ public class EdamamRequest implements RecipeRequest {
     public static class Builder implements RecipeRequest.Builder {
 
         private static final String BASE_URL = "https://api.edamam.com/api/recipes/v2?type=public";
-        private static final String APP_ID = "&app_id=e410fd45";
-        private static final String APP_KEY = "&app_key=6d909ebfe83fafeb792e46f6f1a9cd81";
+        private static final String APP_ID = "&app_id=ID";
+        private static final String APP_KEY = "&app_key=KEY";
         private static final String TYPE = "&type=";
         private static final String QUERY = "&q=";
         private static final String CUISINE_TYPE = "&cuisineType=";
